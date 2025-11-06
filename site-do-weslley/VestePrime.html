@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favelinha Style 3D</title>
+<style>
+/* Reset e estilos globais */
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Arial',sans-serif;}
+body {background:#0e0000; color:#fff; scroll-behavior:smooth;}
+a {text-decoration:none; color:inherit;}
+img {display:block; max-width:100%; border-radius:12px;}
+
+/* Cursor personalizado */
+body, * {cursor: url('dedodomeiosoft.cur'), auto;}
+
+/* Header */
+header {
+    background: linear-gradient(90deg,#e50914,#b40710);
+    padding:25px; text-align:center; font-size:32px; font-weight:bold; letter-spacing:2px;
+    box-shadow:0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Navbar */
+nav {
+    background:#222; display:flex; justify-content:center; padding:12px 0;
+    box-shadow:0 2px 5px rgba(0,0,0,0.3); position:sticky; top:0; z-index:100;
+}
+nav a {margin:0 20px; font-size:18px; transition:0.3s;}
+nav a:hover {color:#e50914;}
+
+/* Banner */
+.banner {
+    background-image:url('https://images.unsplash.com/photo-1512436991641-6745cdb1723f');
+    background-size:cover; background-position:center;
+    height:350px; display:flex; align-items:center; justify-content:center;
+    font-size:40px; font-weight:bold; text-shadow:3px 3px 10px #000;
+}
+
+/* Seção produtos */
+.section-title {
+    text-align:center; font-size:28px; margin:40px 0 20px;
+    color:#e50914; text-transform:uppercase;
+}
+.produtos {
+    display:flex; flex-wrap:wrap; justify-content:center; padding:20px 10px;
+    opacity:0; transform:translateY(20px); transition:opacity 1s, transform 1s;
+}
+.visible {opacity:1; transform:translateY(0);}
+
+/* Card do produto */
+.produto {
+    background:#222; padding:20px; border-radius:12px; text-align:center;
+    width:260px; margin:15px; perspective:1000px;
+    box-shadow:0 8px 20px rgb(255, 0, 149); transition:transform 0.5s, box-shadow 0.3s;
+}
+.produto:hover {transform:translateY(-5px); box-shadow:0 12px 25px rgba(0,0,0,0.7);}
+.produto-inner {transition: transform 0.6s; transform-style: preserve-3d;}
+.produto:hover .produto-inner {transform: rotateY(10deg) rotateX(5deg);}
+
+/* Carousel de imagens */
+.carousel {position:relative; overflow:hidden; height:260px; border-radius:12px; margin-bottom:10px;}
+.carousel img {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    object-fit:cover; opacity:0; transition:opacity 0.8s, transform 0.8s;
+}
+.carousel img.active {opacity:1; transform:rotateY(0deg);}
+
+/* Títulos e preços */
+h3 {margin:15px 0 10px;}
+p {font-size:16px; color:#f5f5f5; font-weight:bold;}
+
+/* Botões */
+button {
+    background:#e50914; border:none; padding:10px 20px;
+    color:#fff; border-radius:5px; margin:5px 0; cursor:pointer;
+    transition:0.3s;
+}
+button:hover {background:#b40710; transform:scale(1.05);}
+.like-btn {position:absolute; top:10px; right:10px; background:none; border:none; font-size:22px; cursor:pointer;}
+.like-btn:hover {transform: scale(1.3);}
+
+/* Seção sobre e newsletter */
+.sobre {background:#222; margin:40px auto; padding:20px; width:90%; max-width:800px; border-radius:12px; text-align:center;}
+.newsletter input {padding:10px; width:200px; border-radius:5px; border:none; margin-right:5px;}
+
+/* Popup */
+#popup {display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.8); justify-content:center; align-items:center; animation:fadeIn 0.5s; z-index:300;}
+#popup div {background:#111; color:#fff; padding:25px; border-radius:12px; text-align:center; max-width:320px; box-shadow:0 8px 20px rgba(255,0,20,0.5);}
+@keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+
+/* Carrinho */
+#cart {position: fixed; bottom: 20px; right: 20px; background: #e50914; padding: 10px 15px; border-radius: 50px; cursor: pointer; z-index: 200; display: flex; align-items: center; transition: transform 0.3s;}
+#cart img {width: 30px; height: 30px;}
+#cart span {margin-left: 8px; font-weight: bold;}
+#cart-details {position: fixed; bottom: 70px; right: 20px; width: 280px; max-height: 400px; overflow-y: auto; background: #222; border-radius: 12px; padding: 15px; display: none; flex-direction: column; z-index: 250; box-shadow: 0 8px 20px rgba(255,0,20,0.5);}
+.cart-item {display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px;}
+.cart-item button {padding: 5px 10px; font-size: 12px;}
+
+/* Filtros */
+#filter {display:flex; justify-content:center; margin-bottom:20px; flex-wrap:wrap;}
+#filter select {padding:10px; margin:5px; border-radius:5px; border:none;}
+
+/* Carrinho animado */
+#cart-moving {position: fixed; top: 10%; left: -60px; width: 50px; transition: left 3s linear;}
+</style>
+</head>
+<body>
+
+<header>Favelinha Style 3D</header>
+<nav>
+    <a href="#produtos">Camisas</a>
+    <a href="#sobre">Sobre</a>
+</nav>
+
+<div class="banner">Estilo da Quebrada</div>
+
+<div id="filter">
+    <select id="brand-filter">
+        <option value="all">Todas as Marcas</option>
+        <option value="Lacoste">Lacoste</option>
+        <option value="Nike">Nike</option>
+        <option value="Adidas">Adidas</option>
+        <option value="Puma">Puma</option>
+    </select>
+    <select id="price-filter">
+        <option value="all">Todos os Preços</option>
+        <option value="0-80">Até R$80</option>
+        <option value="81-100">R$81 - R$100</option>
+        <option value="101-200">R$101 - R$200</option>
+    </select>
+</div>
+
+<section id="produtos">
+    <h2 class="section-title">Camisas</h2>
+    <div class="produtos" id="produtos-list"></div>
+</section>
+
+<section id="sobre" class="sobre">
+    <h2>Sobre a Loja</h2>
+    <p>Favelinha Style é uma loja criada no coração do RJ, trazendo estilo, qualidade e atitude para quem quer se destacar. Nossas camisas são selecionadas com cuidado e sempre com os melhores lançamentos.</p>
+</section>
+
+<section class="sobre newsletter">
+    <h2>Newsletter</h2>
+    <input type="email" placeholder="Digite seu e-mail" id="email-news">
+    <button onclick="subscribe()">Inscrever-se</button>
+</section>
+
+<div id="cart">
+    <img src="https://cdn-icons-png.flaticon.com/512/1170/1170678.png" alt="Carrinho">
+    <span id="cart-count">0</span>
+</div>
+<div id="cart-details"></div>
+<img id="cart-moving" src="https://cdn-icons-png.flaticon.com/512/1170/1170678.png" alt="Carrinho animado">
+
+<div id="popup">
+    <div>
+        <p id="popup-msg"></p>
+        <button onclick="closePopup()">Fechar</button>
+    </div>
+</div>
+
+<script>
+// Produtos: 50 camisas reais com Unsplash
+const marcas = ['Lacoste','Nike','Adidas','Puma'];
+let produtos = [];
+for(let i=1;i<=50;i++){
+    let marca=marcas[Math.floor(Math.random()*marcas.length)];
+    produtos.push({
+        nome:`Camisa ${marca} ${i}`,
+        preco:(Math.random()*150+50).toFixed(2),
+        marca:marca,
+        imagens:[
+            `https://source.unsplash.com/260x260/?tshirt,${marca},${i}`,
+            `https://source.unsplash.com/260x260/?shirt,${marca},${i+50}`,
+            `https://source.unsplash.com/260x260/?clothes,${marca},${i+100}`
+        ]
+    });
+}
+
+let carrinho = [];
+let wishlist = [];
+
+// Renderiza produtos
+function renderProdutos(lista){
+    const container = document.getElementById('produtos-list');
+    container.innerHTML='';
+    lista.forEach(prod=>{
+        const div=document.createElement('div');
+        div.className='produto';
+
+        const inner=document.createElement('div');
+        inner.className='produto-inner';
+
+        const carousel=document.createElement('div');
+        carousel.className='carousel';
+        prod.imagens.forEach((src,i)=>{
+            const img=document.createElement('img');
+            img.src=src;
+            if(i===0) img.classList.add('active');
+            carousel.appendChild(img);
+        });
+        let index=0;
+        setInterval(()=>{
+            const imgs=carousel.querySelectorAll('img');
+            imgs.forEach(img=>img.classList.remove('active'));
+            index=(index+1)%imgs.length;
+            imgs[index].classList.add('active');
+        },2500);
+
+        inner.appendChild(carousel);
+
+        const h3=document.createElement('h3'); h3.innerText=prod.nome; inner.appendChild(h3);
+        const p=document.createElement('p'); p.innerText='R$ '+prod.preco; inner.appendChild(p);
+
+        const btn1=document.createElement('button'); btn1.innerText='Ver Detalhes'; btn1.onclick=()=>showPopup('Detalhes de '+prod.nome+' em breve...'); inner.appendChild(btn1);
+        const btn2=document.createElement('button'); btn2.innerText='Adicionar ao Carrinho'; btn2.onclick=()=>addCart(prod); inner.appendChild(btn2);
+        const btn3=document.createElement('button'); btn3.innerText='WhatsApp'; btn3.onclick=()=>window.open('https://wa.me/5521975571107','_blank'); inner.appendChild(btn3);
+
+        const likeBtn=document.createElement('button');
+        likeBtn.className='like-btn';
+        likeBtn.innerHTML='❤️';
+        likeBtn.onclick=()=>{
+          if(!wishlist.includes(prod.nome)){
+            wishlist.push(prod.nome);
+            likeBtn.innerHTML='💖';
+            showPopup(prod.nome+' adicionado à Wishlist!');
+          }
+        }
+        inner.appendChild(likeBtn);
+
+        div.appendChild(inner);
+        container.appendChild(div);
+    });
+}
+
+// Funções gerais
+function showPopup(msg){document.getElementById('popup-msg').innerText=msg; document.getElementById('popup').style.display='flex';}
+function closePopup(){document.getElementById('popup').style.display='none';}
+function subscribe(){const email=document.getElementById('email-news').value; if(email){showPopup('Obrigado por se inscrever, '+email+'!'); document.getElementById('email-news').value='';} else {alert('Digite um e-mail válido');}}
+function addCart(prod){carrinho.push(prod); atualizarCarrinho(); showPopup(prod.nome+' adicionado ao carrinho!');}
+function atualizarCarrinho(){document.getElementById('cart-count').innerText=carrinho.length; renderCartDetails();}
+function renderCartDetails(){
+    const details=document.getElementById('cart-details'); details.innerHTML=''; if(carrinho.length===0){details.style.display='none'; return;}
+    details.style.display='flex';
+    carrinho.forEach((item,i)=>{
+        const div=document.createElement('div'); div.className='cart-item';
+        div.innerHTML=`<span>${item.nome} R$${item.preco}</span>`;
+        const btn=document.createElement('button'); btn.innerText='Remover'; btn.onclick=()=>{carrinho.splice(i,1); atualizarCarrinho();};
+        div.appendChild(btn); details.appendChild(div);
+    });
+}
+
+// Filtros
+document.getElementById('brand-filter').addEventListener('change',filterProducts);
+document.getElementById('price-filter').addEventListener('change',filterProducts);
+function filterProducts(){ 
+  let brand=document.getElementById('brand-filter').value;
+  let price=document.getElementById('price-filter').value;
+  let [min,max]=price.split('-').map(Number);
+  renderProdutos(produtos.filter(p=>{
+      let b=brand==='all'?true:p.marca===brand;
+      let pr=price==='all'?true:(p.preco>=min && p.preco<=max);
+      return b && pr;
+  }));
+}
+
+// Scroll animation
+window.addEventListener('scroll',()=>{
+    document.querySelectorAll('.produtos').forEach(section=>{
+        const rect=section.getBoundingClientRect();
+        if(rect.top<window.innerHeight-50) section.classList.add('visible');
+    });
+});
+
+renderProdutos(produtos);
+
+// Carrinho animado
+let cartMoving=document.getElementById('cart-moving');
+let direction=1;
+setInterval(()=>{
+    let left=parseInt(getComputedStyle(cartMoving).left);
+    if(left>window.innerWidth-60) direction=-1;
+    if(left<0) direction=1;
+    cartMoving.style.left=(left+direction*2)+'px';
+},20);
+</script>
+
+<footer>© 2025 Favelinha Style - Todos os direitos reservados | WhatsApp: <a href="https://wa.me/5521975571107">21 97557-1107</a></footer>
+</body>
+</html>
